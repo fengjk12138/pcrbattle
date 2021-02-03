@@ -1,5 +1,6 @@
 import xlrd
 from box import get_name
+import copy
 
 boss_name = ['1', '2', '3', '4', '5']
 boss_status = ['a', 'b', 'c']
@@ -15,6 +16,12 @@ def get_timeline(filename):
         if len(boss) != 2 or boss[0] not in boss_status or boss[1] not in boss_name:
             print(boss + "不是能识别的boss")
             exit(0)
+
+        hurt = table.cell(i, 2).value
+        if hurt[-1] != 'w' or not hurt[0:-1].isdigit():
+            print(hurt + "不是合理伤害")
+            exit(0)
+
         name = table.cell(i, 1).value
         true_name = []
         for x in name.strip().split():
@@ -25,10 +32,7 @@ def get_timeline(filename):
                 print(name + "阵容有两个相同的人物")
                 exit(0)
         assert len(true_name) == 5  # 一个阵容5个人
-        hurt = table.cell(i, 2).value
-        if hurt[-1] != 'w' or not hurt[0:-1].isdigit():
-            print(hurt + "不是合理伤害")
-            exit(0)
-        tmp = {"chara": true_name, "soccer": int(hurt[0:-1]), "boss": boss}
+
+        tmp = {"chara": true_name, "soccer": int(copy.deepcopy(hurt[0:-1])), "boss": boss}
         out.append(tmp)
     return out

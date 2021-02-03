@@ -4,6 +4,7 @@ import os
 import box
 from timeline import get_timeline
 from box import get_box
+from liner_pro import slove
 
 boss_volume = [6000000, 8000000, 10000000, 12000000, 20000000]
 
@@ -31,11 +32,15 @@ def check_char(now_work):
                 for t in now_work[2]["chara"]:
                     if t != z:
                         tmp[t] = 1 if t not in tmp else tmp[t] + 1
+                is_next = False
                 for key in tmp:
                     if tmp[key] >= 2:
+                        is_next = True
                         break
+                if is_next:
+                    continue
                 if not is_work:
-                    homework.append(now_work)
+                    homework.append(copy.deepcopy(now_work))
                     is_work = True
                     able_matrix.append([0 for _ in range(30)])
                 for i, name in enumerate(boxtable):
@@ -51,8 +56,6 @@ def check_char(now_work):
 
 
 def dfs(last, now_dict, now_work):
-    global homework
-    global box
     if last >= len(now_dict):
         return
     for x in range(last, len(now_dict)):
@@ -61,6 +64,8 @@ def dfs(last, now_dict, now_work):
             pass
         else:
             dfs(x + 1, now_dict, now_work)
+        now_work.pop()
+
 
 def list_to_string(chara):
     out = ""
@@ -68,16 +73,16 @@ def list_to_string(chara):
         out += x + " "
     return out
 
+
 def homework_to_string(homework):
     out_str = ""
     cnt = 0
-    for lu in homework:
-        for x in lu:
-            cnt += 1
-            out_str += "套餐" + str(cnt) + ": \n" + \
-                       x[0]["boss"] + " " + list_to_string(x[0]["chara"]) + " " + x[0]["soccer"] + "\n" + \
-                       x[1]["boss"] + " " + list_to_string(x[1]["chara"]) + " " + x[1]["soccer"] + "\n" + \
-                       x[2]["boss"] + " " + list_to_string(x[2]["chara"]) + " " + x[2]["soccer"] + "\n"
+    for x in homework:
+        cnt += 1
+        out_str += "套餐" + str(cnt) + ": \n" + \
+                   x[0]["boss"] + " " + list_to_string(x[0]["chara"]) + " " + str(x[0]["soccer"]) + "w\n" + \
+                   x[1]["boss"] + " " + list_to_string(x[1]["chara"]) + " " + str(x[1]["soccer"]) + "w\n" + \
+                   x[2]["boss"] + " " + list_to_string(x[2]["chara"]) + " " + str(x[2]["soccer"]) + "w\n"
     return out_str
 
 
@@ -87,5 +92,4 @@ def gen_homework(timeline):
 
 if __name__ == "__main__":
     gen_homework(timeline)
-    print(homework)
-    print(homework_to_string(homework))
+    slove(able_matrix, homework)
