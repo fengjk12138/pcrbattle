@@ -1,6 +1,6 @@
 from pulp import *
 
-problem = LpProblem("Ads Optimization", LpMaximize)
+problem = LpProblem("Ads Optimization", LpMinimize)
 boss_name = ['1', '2', '3', '4', '5']
 boss_status = ['a', 'b', 'c']
 
@@ -20,13 +20,13 @@ def slove(able_matrix, homework):
             tmp_dinner = tmp_dinner + var_matrix[i][j]
         problem += tmp_dinner <= 1  # 这个人至少(可能)出1个套餐
     need_to_defeat = {
-        'a1': 600 * 4,
-        'a2': 800 * 4,
+        'a1': 600 * 3,
+        'a2': 800 * 3,
         'a3': 1000 * 3,
         'a4': 1200 * 3,
         'a5': 2000 * 3,
-        'b1': 0,
-        'b2': 0,
+        'b1': 600 * 1,
+        'b2': 800 * 1,
         'b3': 0,
         'b4': 0,
         'b5': 0,
@@ -65,18 +65,30 @@ def slove(able_matrix, homework):
         if plan_to_defeat[x] is not None and need_to_defeat[x] != 0:
             problem += plan_to_defeat[x] >= need_to_defeat[x]
             # problem += plan_to_defeat[x] <= need_to_defeat[x] + 2?\000
+
+    # obj = None
+    # for i in range(len(able_matrix)):
+    #     for j in range(30):
+    #         if able_matrix[i][j] != 0:
+    #             if obj is None:
+    #                 obj = var_matrix[i][j] * (
+    #                         homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"])
+    #             else:
+    #                 obj = var_matrix[i][j] * (
+    #                         homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj
+    # problem += obj
+
     obj = None
     for i in range(len(able_matrix)):
         for j in range(30):
             if able_matrix[i][j] != 0:
                 if obj is None:
-                    obj = var_matrix[i][j] * (
-                            homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"])
+                    obj = var_matrix[i][j]
                 else:
-                    obj = var_matrix[i][j] * (
-                            homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj
+                    obj = var_matrix[i][j] + obj
     problem += obj
-    print(problem)
+
+    # print(problem)
     can_solve = problem.solve()
     print(can_solve)
     if can_solve == 1:

@@ -92,4 +92,5 @@ def gen_homework(timeline):
 
 if __name__ == "__main__":
     gen_homework(timeline)
+    print(len(homework))
     slove(able_matrix, homework)
