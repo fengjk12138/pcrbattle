@@ -21,7 +21,7 @@ def slove(able_matrix, homework):
         problem += tmp_dinner <= 1  # 这个人至少(可能)出1个套餐
     need_to_defeat = {
         'a1': 600 * 4,
-        'a2': 800 * 3,
+        'a2': 800 * 4,
         'a3': 1000 * 3,
         'a4': 1200 * 3,
         'a5': 2000 * 3,
@@ -77,10 +77,12 @@ def slove(able_matrix, homework):
                             homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj
     problem += obj
     print(problem)
-    print(problem.solve())
-    tot = 0
-    for i in range(len(able_matrix)):
-        for j in range(30):
-            tot += int(var_matrix[i][j].varValue)
-    print(tot)
-    print(int(value(problem.objective)))
+    can_solve = problem.solve()
+    print(can_solve)
+    if can_solve == 1:
+        tot = 0
+        for i in range(len(able_matrix)):
+            for j in range(30):
+                tot += int(var_matrix[i][j].varValue)
+        print(tot)
+        print(int(value(problem.objective)))
