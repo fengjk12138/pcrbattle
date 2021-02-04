@@ -81,11 +81,10 @@ def slove(able_matrix, homework):
     obj = None
     for i in range(len(able_matrix)):
         for j in range(30):
-            if able_matrix[i][j] != 0:
-                if obj is None:
-                    obj = var_matrix[i][j]
-                else:
-                    obj = var_matrix[i][j] + obj
+            if obj is None:
+                obj = var_matrix[i][j]
+            else:
+                obj = var_matrix[i][j] + obj
     problem += obj
 
     # print(problem)
@@ -98,3 +97,4 @@ def slove(able_matrix, homework):
                 tot += int(var_matrix[i][j].varValue)
         print(tot)
         print(int(value(problem.objective)))
+    
