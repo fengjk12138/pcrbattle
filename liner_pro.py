@@ -2,12 +2,13 @@ from pulp import *
 import xlwt
 from chara import list_to_string
 
-problem = LpProblem("Ads Optimization", LpMaximize)
-boss_name = ['1', '2', '3', '4', '5']
-boss_status = ['a', 'b', 'c']
 
 
-def slove(able_matrix, homework, box):
+
+def slove(able_matrix, homework, box,need_to_defeat):
+    problem = LpProblem("Ads Optimization", LpMinimize)
+    boss_name = ['1', '2', '3', '4', '5']
+    boss_status = ['a', 'b', 'c']
     global problem
     var_matrix = []
     for i in range(len(able_matrix)):
@@ -26,12 +27,12 @@ def slove(able_matrix, homework, box):
         'a2': 800 * 3,
         'a3': 1000 * 3,
         'a4': 1200 * 3,
-        'a5': 2000 * 3,
-        'b1': 600 * 1,
-        'b2': 800 * 1,
-        'b3': 1000 * 1,
-        'b4': 1200 * 1,
-        'b5': 2000 * 0.7,
+        'a5': 2000 * 2.5,
+        'b1': 0,
+        'b2': 0,
+        'b3': 0,
+        'b4': 0,
+        'b5': 0,
         'c1': 0,
         'c2': 0,
         'c3': 0,
@@ -145,3 +146,4 @@ def slove(able_matrix, homework, box):
         # 保存
         workbook.save('排刀表.xls')
         print("出刀数: ", output)
+    return can_solve

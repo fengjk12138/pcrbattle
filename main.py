@@ -87,4 +87,23 @@ def gen_homework(timeline):
 if __name__ == "__main__":
     gen_homework(timeline)
     print(len(homework))
-    slove(able_matrix, homework, boxtable)
+    need_to_defeat = {
+        'a1': 600 * 3,
+        'a2': 800 * 3,
+        'a3': 1000 * 3,
+        'a4': 1200 * 3,
+        'a5': 2000 * 2.5,
+        'b1': 0,
+        'b2': 0,
+        'b3': 0,
+        'b4': 0,
+        'b5': 0,
+        'c1': 0,
+        'c2': 0,
+        'c3': 0,
+        'c4': 0,
+        'c5': 0,
+        'last': 'b3'
+    }
+    slove(able_matrix, homework, boxtable, need_to_defeat)
+    
