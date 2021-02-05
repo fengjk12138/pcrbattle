@@ -88,3 +88,10 @@ def guess_id(name):
 
 def id2name(id):
     return roster.get_true_name(id)
+
+
+def list_to_string(chara):
+    out = ""
+    for x in chara:
+        out += x + " "
+    return out

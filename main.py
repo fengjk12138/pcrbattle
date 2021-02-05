@@ -5,6 +5,7 @@ import box
 from timeline import get_timeline
 from box import get_box
 from liner_pro import slove
+from chara import list_to_string
 
 boss_volume = [6000000, 8000000, 10000000, 12000000, 20000000]
 
@@ -19,9 +20,9 @@ def check_char(now_work):
     global homework
     global boxtable
     is_work = False
-    for x in now_work[0]["chara"]:
-        for y in now_work[1]["chara"]:
-            for z in now_work[2]["chara"]:
+    for x in now_work[0]["borrow"]:
+        for y in now_work[1]["borrow"]:
+            for z in now_work[2]["borrow"]:
                 tmp = {}
                 for t in now_work[0]["chara"]:
                     if t != x:
@@ -67,13 +68,6 @@ def dfs(last, now_dict, now_work):
         now_work.pop()
 
 
-def list_to_string(chara):
-    out = ""
-    for x in chara:
-        out += x + " "
-    return out
-
-
 def homework_to_string(homework):
     out_str = ""
     cnt = 0
@@ -93,4 +87,4 @@ def gen_homework(timeline):
 if __name__ == "__main__":
     gen_homework(timeline)
     print(len(homework))
-    slove(able_matrix, homework)
+    slove(able_matrix, homework, boxtable)

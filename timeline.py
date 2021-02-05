@@ -21,6 +21,13 @@ def get_timeline(filename):
         if hurt[-1] != 'w' or not hurt[0:-1].isdigit():
             print(hurt + "不是合理伤害")
             exit(0)
+        borrow_name = None
+        if table.cell_type(i, 3) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
+            name = table.cell(i, 3).value
+            borrow_name = []
+            for x in name.strip().split():
+                borrow_name.append(get_name(x))
+            borrow_name.sort()
 
         name = table.cell(i, 1).value
         true_name = []
@@ -32,7 +39,9 @@ def get_timeline(filename):
                 print(name + "阵容有两个相同的人物")
                 exit(0)
         assert len(true_name) == 5  # 一个阵容5个人
+        if borrow_name is None:
+            borrow_name = copy.deepcopy(true_name)
 
-        tmp = {"chara": true_name, "soccer": int(copy.deepcopy(hurt[0:-1])), "boss": boss}
+        tmp = {"chara": true_name, "soccer": int(copy.deepcopy(hurt[0:-1])), "boss": boss, "borrow": borrow_name}
         out.append(tmp)
     return out

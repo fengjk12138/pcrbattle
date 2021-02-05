@@ -2,3 +2,5 @@ pulp
 pygtrie
 fuzzywuzzy
 zhconv
+xlrd
+xlwt
