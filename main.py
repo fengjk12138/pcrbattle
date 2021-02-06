@@ -7,7 +7,7 @@ from box import get_box
 from liner_pro import slove
 from chara import list_to_string
 
-boss_volume = [6000000, 8000000, 10000000, 12000000, 20000000]
+boss_volume = [600, 800, 1000, 1200, 2000]
 
 homework = []
 able_matrix = []
@@ -24,20 +24,32 @@ def check_char(now_work):
         for y in now_work[1]["borrow"]:
             for z in now_work[2]["borrow"]:
                 tmp = {}
+                is_next = False
                 for t in now_work[0]["chara"]:
                     if t != x:
-                        tmp[t] = 1 if t not in tmp else tmp[t] + 1
+                        if t in tmp:
+                            is_next = True
+                            break
+                        else:
+                            tmp[t] = 1
+                if is_next:
+                    continue
                 for t in now_work[1]["chara"]:
                     if t != y:
-                        tmp[t] = 1 if t not in tmp else tmp[t] + 1
+                        if t in tmp:
+                            is_next = True
+                            break
+                        else:
+                            tmp[t] = 1
+                if is_next:
+                    continue
                 for t in now_work[2]["chara"]:
                     if t != z:
-                        tmp[t] = 1 if t not in tmp else tmp[t] + 1
-                is_next = False
-                for key in tmp:
-                    if tmp[key] >= 2:
-                        is_next = True
-                        break
+                        if t in tmp:
+                            is_next = True
+                            break
+                        else:
+                            tmp[t] = 1
                 if is_next:
                     continue
                 if not is_work:
@@ -56,16 +68,13 @@ def check_char(now_work):
     return is_work
 
 
-def dfs(last, now_dict, now_work):
-    if last >= len(now_dict):
-        return
-    for x in range(last, len(now_dict)):
-        now_work.append(now_dict[x])
-        if len(now_work) == 3 and check_char(now_work):
-            pass
-        else:
-            dfs(x + 1, now_dict, now_work)
-        now_work.pop()
+def dfs():
+    global timeline
+    for i in range(len(timeline)):
+        for j in range(i + 1, len(timeline)):
+            for k in range(j + 1, len(timeline)):
+                now_work = [timeline[i], timeline[j], timeline[k]]
+                check_char(now_work)
 
 
 def homework_to_string(homework):
@@ -81,7 +90,16 @@ def homework_to_string(homework):
 
 
 def gen_homework(timeline):
-    dfs(0, timeline, [])
+    dfs()
+
+
+def gen_next_defeat(need_to_defeat):
+    global boss_volume
+    stat = int(need_to_defeat['now'].split('-')[0])
+    boss = int(need_to_defeat['now'].split('-')[1])
+    if boss <= 4:
+        boss += 1
+        need_to_defeat[str(f'{stat}-{boss}')] += boss_volume[boss]
 
 
 if __name__ == "__main__":
@@ -92,18 +110,19 @@ if __name__ == "__main__":
         'a2': 800 * 3,
         'a3': 1000 * 3,
         'a4': 1200 * 3,
-        'a5': 2000 * 2.5,
-        'b1': 0,
-        'b2': 0,
-        'b3': 0,
-        'b4': 0,
+        'a5': 2000 * 3,
+        'b1': 600 * 1,
+        'b2': 800 * 1,
+        'b3': 1000 * 1,
+        'b4': 1200 * 1,
         'b5': 0,
         'c1': 0,
         'c2': 0,
         'c3': 0,
         'c4': 0,
         'c5': 0,
-        'last': 'b3'
+        'd1': 0, 'd2': 0, 'd3': 0, 'd4': 0, 'd5': 0,
+        'now': '2-5'
     }
-    slove(able_matrix, homework, boxtable, need_to_defeat)
-    
+
+    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat))

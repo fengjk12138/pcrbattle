@@ -3,7 +3,7 @@ from box import get_name
 import copy
 
 boss_name = ['1', '2', '3', '4', '5']
-boss_status = ['a', 'b', 'c']
+boss_status = ['a', 'b', 'c', 'd']
 
 
 def get_timeline(filename):
