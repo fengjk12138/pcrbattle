@@ -1,6 +1,7 @@
 import xlrd
 from box import get_name
 import copy
+from box import person_num
 
 boss_name = ['1', '2', '3', '4', '5']
 boss_status = ['a', 'b', 'c', 'd']

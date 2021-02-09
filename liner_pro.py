@@ -1,18 +1,19 @@
 from pulp import *
 import xlwt
 from chara import list_to_string
+from box import person_num
 
 
-def slove(able_matrix, homework, box, need_to_defeat):
+def slove(able_matrix, homework, box, need_to_defeat, borrow):
     problem = LpProblem("Ads Optimization", LpMinimize)
     var_matrix = []
     for i in range(len(able_matrix)):
         tmp_list = []
-        for j in range(30):
+        for j in range(person_num):
             tmp_list.append(
                 LpVariable(f"{str(i)} {str(j)}", lowBound=0, upBound=able_matrix[i][j], cat='Binary', e=None))
         var_matrix.append(tmp_list)
-    for j in range(30):
+    for j in range(person_num):
         tmp_dinner = var_matrix[0][j]
         for i in range(1, len(able_matrix)):
             tmp_dinner = tmp_dinner + var_matrix[i][j]
@@ -38,7 +39,7 @@ def slove(able_matrix, homework, box, need_to_defeat):
 
     obj = None
     for i in range(len(able_matrix)):
-        for j in range(30):
+        for j in range(person_num):
             if able_matrix[i][j]:
                 for y in homework[i]:
                     if y['boss'][0] != 'd':
@@ -71,7 +72,7 @@ def slove(able_matrix, homework, box, need_to_defeat):
 
     # obj = None
     # for i in range(len(able_matrix)):
-    #     for j in range(30):
+    #     for j in range(person_num):
     #         if obj is None:
     #             obj = var_matrix[i][j]
     #         else:
@@ -80,19 +81,19 @@ def slove(able_matrix, homework, box, need_to_defeat):
 
     # obj = None
     # for i in range(len(able_matrix)):
-    #     for j in range(30):
+    #     for j in range(person_num):
     #         if obj is None:
     #             obj = var_matrix[i][j]
     #         else:
     #             obj = var_matrix[i][j] + obj
-    # problem += obj
+    problem += obj
     # solver = CPLEX_CMD()
     can_solve = problem.solve()
     print(can_solve)
     if can_solve == 1:
         tot = 0
         for i in range(len(able_matrix)):
-            for j in range(30):
+            for j in range(person_num):
                 tot += int(var_matrix[i][j].varValue)
         print("出刀人数：", tot)
         # print("完整刀伤害人数：", int(value(problem.objective)))
@@ -107,7 +108,7 @@ def slove(able_matrix, homework, box, need_to_defeat):
         for key in box:
             name_list.append(key)
         output = 0
-        for i in range(30):
+        for i in range(person_num):
             worksheet.write(i * 3, 0, label=name_list[i])
             worksheet.write(i * 3, 1, label='待定')
             worksheet.write(i * 3 + 1, 1, label='待定')
@@ -120,6 +121,7 @@ def slove(able_matrix, homework, box, need_to_defeat):
                             output += 1
                             worksheet.write(i * 3 + u, 2, label=homework[j][u]["boss"])
                             worksheet.write(i * 3 + u, 3, label=str(homework[j][u]["soccer"]))
+                            worksheet.write(i * 3 + u, 4, label="借 " + borrow[j][i][u])
                             need_to_defeat[homework[j][u]["boss"]] -= homework[j][u]["soccer"]
         # 保存
         workbook.save('排刀表.xls')

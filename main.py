@@ -6,6 +6,7 @@ from timeline import get_timeline
 from box import get_box
 from liner_pro import slove
 from chara import list_to_string
+from box import person_num
 
 boss_volume = [600, 800, 1000, 1200, 2000]
 
@@ -13,12 +14,15 @@ homework = []
 able_matrix = []
 boxtable = get_box("box表.xlsx")
 timeline = get_timeline("轴表.xlsx")
+borrow = []
 
 
 def check_char(now_work):
     global able_matrix
     global homework
     global boxtable
+    global borrow
+    global person_num
     is_work = False
     for x in now_work[0]["borrow"]:
         for y in now_work[1]["borrow"]:
@@ -55,7 +59,9 @@ def check_char(now_work):
                 if not is_work:
                     homework.append(copy.deepcopy(now_work))
                     is_work = True
-                    able_matrix.append([0 for _ in range(30)])
+                    able_matrix.append([0 for _ in range(person_num)])
+                    borrow.append([[] for _ in range(person_num)])
+
                 for i, name in enumerate(boxtable):
                     if able_matrix[len(homework) - 1][i] == 0:
                         can_use = True
@@ -65,6 +71,9 @@ def check_char(now_work):
                                 break
                         if can_use:
                             able_matrix[len(homework) - 1][i] = 1
+                            borrow[len(homework) - 1][i].append(x)
+                            borrow[len(homework) - 1][i].append(y)
+                            borrow[len(homework) - 1][i].append(z)
     return is_work
 
 
@@ -106,23 +115,22 @@ if __name__ == "__main__":
     gen_homework(timeline)
     print(len(homework))
     need_to_defeat = {
-        'a1': 600 * 3,
-        'a2': 800 * 3,
-        'a3': 1000 * 3,
-        'a4': 1200 * 3,
-        'a5': 2000 * 3,
-        'b1': 600 * 1,
-        'b2': 800 * 1,
-        'b3': 1000 * 1,
-        'b4': 1200 * 1,
+        'a1': 0,
+        'a2': 0,
+        'a3': 0,
+        'a4': 0,
+        'a5': 0,
+        'b1': 0,
+        'b2': 0,
+        'b3': 0,
+        'b4': 0,
         'b5': 0,
-        'c1': 0,
-        'c2': 0,
-        'c3': 0,
-        'c4': 0,
-        'c5': 0,
+        'c1': 600 * 3,
+        'c2': 800 * 3,
+        'c3': 1000 * 3,
+        'c4': 1200 * 3,
+        'c5': 2000 * 3,
         'd1': 0, 'd2': 0, 'd3': 0, 'd4': 0, 'd5': 0,
-        'now': '2-5'
     }
-
-    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat))
+    # print(len(boxtable))
+    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
