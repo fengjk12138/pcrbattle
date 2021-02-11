@@ -19,21 +19,9 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
             tmp_dinner = tmp_dinner + var_matrix[i][j]
         problem += tmp_dinner <= 1  # 这个人至少(可能)出1个套餐
     plan_to_defeat = {
-        'a1': None,
-        'a2': None,
-        'a3': None,
-        'a4': None,
-        'a5': None,
-        'b1': None,
-        'b2': None,
-        'b3': None,
-        'b4': None,
-        'b5': None,
-        'c1': None,
-        'c2': None,
-        'c3': None,
-        'c4': None,
-        'c5': None,
+        'a1': None, 'a2': None, 'a3': None, 'a4': None, 'a5': None,
+        'b1': None, 'b2': None, 'b3': None, 'b4': None, 'b5': None,
+        'c1': None, 'c2': None, 'c3': None, 'c4': None, 'c5': None,
         'd1': None, 'd2': None, 'd3': None, 'd4': None, 'd5': None,
     }
 
