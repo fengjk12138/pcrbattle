@@ -18,42 +18,40 @@ borrow = []
 
 
 def check_char(now_work):
+    # 判断一个套餐是否可行，并且更新各个人是否能打这个套餐，屎山
     global able_matrix
     global homework
     global boxtable
     global borrow
     global person_num
     is_work = False
+
     for x in now_work[0]["borrow"]:
         for y in now_work[1]["borrow"]:
             for z in now_work[2]["borrow"]:
-                tmp = {}
-                is_next = False
+                tmp = []
+                tot_limit = {}
                 for t in now_work[0]["chara"]:
                     if t != x:
-                        if t in tmp:
-                            is_next = True
-                            break
-                        else:
-                            tmp[t] = 1
-                if is_next:
-                    continue
+                        tmp.append(t)
+                        if t in now_work[0]["limited"]:
+                            tot_limit[t] = now_work[0]["limited"]
                 for t in now_work[1]["chara"]:
                     if t != y:
-                        if t in tmp:
-                            is_next = True
-                            break
-                        else:
-                            tmp[t] = 1
-                if is_next:
-                    continue
+                        tmp.append(t)
+                        if t in now_work[1]["limited"]:
+                            tot_limit[t] = now_work[1]["limited"]
                 for t in now_work[2]["chara"]:
                     if t != z:
-                        if t in tmp:
-                            is_next = True
-                            break
-                        else:
-                            tmp[t] = 1
+                        tmp.append(t)
+                        if t in now_work[2]["limited"]:
+                            tot_limit[t] = now_work[2]["limited"]
+                is_next = False
+                tmp.sort()
+                for j in range(len(tmp) - 1):
+                    if tmp[j] == tmp[j + 1]:
+                        is_next = True
+                        break
                 if is_next:
                     continue
                 if not is_work:
@@ -69,11 +67,17 @@ def check_char(now_work):
                             if key not in boxtable[name]:
                                 can_use = False
                                 break
+                            if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
+                                can_use = False
+                                break
                         if can_use:
                             able_matrix[len(homework) - 1][i] = 1
-                            borrow[len(homework) - 1][i].append(x)
-                            borrow[len(homework) - 1][i].append(y)
-                            borrow[len(homework) - 1][i].append(z)
+                            borrow[len(homework) - 1][i].append(
+                                x if x not in now_work[0]["limited"] else x + list_to_string(now_work[0]["limited"][x]))
+                            borrow[len(homework) - 1][i].append(
+                                y if y not in now_work[0]["limited"] else y + list_to_string(now_work[0]["limited"][y]))
+                            borrow[len(homework) - 1][i].append(
+                                z if z not in now_work[0]["limited"] else z + list_to_string(now_work[0]["limited"][z]))
     return is_work
 
 

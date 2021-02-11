@@ -30,7 +30,7 @@ def get_box(filename):
         out[table.cell(i, 2).value] = {}
         for j in range(3, table.ncols):
             if table.cell_type(i, j) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
-                out[table.cell(i, 2).value][name[j - 3]] = 1
+                out[table.cell(i, 2).value][name[j - 3]] = table.cell(i, j).value
     return out
 
 
