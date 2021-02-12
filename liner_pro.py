@@ -6,14 +6,14 @@ import copy
 
 
 # flag 0:先计算最少刀数 1:最少刀数的情况下最大伤害
-def slove(able_matrix, homework, box, need_to_defeat, borrow, flag):
-    problem = LpProblem("Ads Optimization", LpMinimize if flag == 0 else LpMaximize)
+def slove(able_matrix, homework, box, need_to_defeat, borrow):
+    problem = LpProblem("Ads_Optimization", LpMinimize)
     var_matrix = []
     for i in range(len(able_matrix)):
         tmp_list = []
         for j in range(person_num):
             tmp_list.append(
-                LpVariable(f"{str(i)}_{str(j)}", lowBound=0, upBound=able_matrix[i][j], cat='Binary', e=None))
+                LpVariable("%d_%d_var" % (i, j), lowBound=0, upBound=able_matrix[i][j], cat='Binary', e=None))
         var_matrix.append(tmp_list)
     for j in range(person_num):
         tmp_dinner = var_matrix[0][j]
@@ -46,20 +46,19 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow, flag):
         if plan_to_defeat[x] is not None and need_to_defeat[x] != 0:
             problem += plan_to_defeat[x] >= need_to_defeat[x]
 
-    # problem += obj
-    # print(obj)
-    obj2 = None
-    for i in range(len(able_matrix)):
-        for j in range(30):
-            if able_matrix[i][j] != 0:
-                if obj2 is None:
-                    obj2 = var_matrix[i][j] * (
-                            homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"])
-                else:
-                    obj2 = var_matrix[i][j] * (
-                            homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj2
-    if flag != 0:
-        problem += obj2
+
+
+    # obj2 = None
+    # for i in range(len(able_matrix)):
+    #     for j in range(person_num):
+    #         if able_matrix[i][j] != 0:
+    #             if obj2 is None:
+    #                 obj2 = var_matrix[i][j] * (
+    #                         homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"])
+    #             else:
+    #                 obj2 = var_matrix[i][j] * (
+    #                         homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj2
+    # problem += obj2
 
     # obj = None
     # for i in range(len(able_matrix)):
@@ -68,25 +67,18 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow, flag):
     #             obj = var_matrix[i][j]
     #         else:
     #             obj = var_matrix[i][j] + obj
-    # problem += obj
+    problem += obj
 
-    # obj = None
-    # for i in range(len(able_matrix)):
-    #     for j in range(person_num):
-    #         if obj is None:
-    #             obj = var_matrix[i][j]
-    #         else:
-    #             obj = var_matrix[i][j] + obj
+    # problem += obj if flag == 0 else (obj == flag)
 
-    problem += obj if flag == 0 else (obj == flag)
     can_solve = problem.solve()
-    print(can_solve)
-    if flag == 0:
-        if can_solve != 1:
-            return -1
-        else:
-            return int(value(problem.objective))
-    if can_solve == 1 and flag != 0:
+    # print(obj.varValue)
+    # if flag == 0:
+    #     if can_solve != 1:
+    #         return -1
+    #     else:
+    #         return int(obj.varValue)
+    if can_solve == 1:
         tot = 0
         for i in range(len(able_matrix)):
             for j in range(person_num):

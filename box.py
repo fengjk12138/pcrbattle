@@ -1,6 +1,7 @@
 # coding=utf-8
 import xlrd
 import chara
+import os
 
 person_num = 30
 
@@ -30,10 +31,25 @@ def get_box(filename):
         out[table.cell(i, 2).value] = {}
         for j in range(3, table.ncols):
             if table.cell_type(i, j) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
-                out[table.cell(i, 2).value][name[j - 3]] = table.cell(i, j).value
+                myval = table.cell(i, j).value
+                if isinstance(myval, float):
+                    myval = int(myval)
+                myval = str(myval)
+                out[table.cell(i, 2).value][name[j - 3]] = myval
     return out
 
-
-if __name__ == '__main__':
-    # x = get_box("demo.xlsx")
-    print(get_name('狼'))
+# def executable(command):
+#     if os.path.isabs(command):
+#         if os.path.exists(command) and os.access(command, os.X_OK):
+#             return command
+#     for path in os.environ.get("PATH", []).split(os.pathsep):
+#         new_path = os.path.join(path, command)
+#         if os.path.exists(new_path) and os.access(new_path, os.X_OK):
+#             return os.path.join(path, command)
+#     return False
+#     executable = staticmethod(executable)
+#
+# if __name__ == '__main__':
+#     # x = get_box("box表.xlsx")
+#     # print(x)
+#     print(executable('glpsol.exe'))

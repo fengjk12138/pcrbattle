@@ -54,6 +54,7 @@ def check_char(now_work):
                         break
                 if is_next:
                     continue
+
                 if not is_work:
                     homework.append(copy.deepcopy(now_work))
                     is_work = True
@@ -67,9 +68,9 @@ def check_char(now_work):
                             if key not in boxtable[name]:
                                 can_use = False
                                 break
-                            # if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
-                            #     can_use = False
-                            #     break
+                            if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
+                                can_use = False
+                                break
                         if can_use:
                             able_matrix[len(homework) - 1][i] = 1
                             borrow[len(homework) - 1][i].append(
@@ -137,8 +138,5 @@ if __name__ == "__main__":
         'd1': 0, 'd2': 0, 'd3': 0, 'd4': 0, 'd5': 0,
     }
     # print(len(boxtable))
-    can_solve = slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow, 0)
-    if can_solve != -1:
-        slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow, can_solve)
-    else:
-        print("无解")
+    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
+
