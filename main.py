@@ -35,17 +35,17 @@ def check_char(now_work):
                     if t != x:
                         tmp.append(t)
                         if t in now_work[0]["limited"]:
-                            tot_limit[t] = now_work[0]["limited"]
+                            tot_limit[t] = now_work[0]["limited"][t]
                 for t in now_work[1]["chara"]:
                     if t != y:
                         tmp.append(t)
                         if t in now_work[1]["limited"]:
-                            tot_limit[t] = now_work[1]["limited"]
+                            tot_limit[t] = now_work[1]["limited"][t]
                 for t in now_work[2]["chara"]:
                     if t != z:
                         tmp.append(t)
                         if t in now_work[2]["limited"]:
-                            tot_limit[t] = now_work[2]["limited"]
+                            tot_limit[t] = now_work[2]["limited"][t]
                 is_next = False
                 tmp.sort()
                 for j in range(len(tmp) - 1):
@@ -67,17 +67,17 @@ def check_char(now_work):
                             if key not in boxtable[name]:
                                 can_use = False
                                 break
-                            if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
-                                can_use = False
-                                break
+                            # if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
+                            #     can_use = False
+                            #     break
                         if can_use:
                             able_matrix[len(homework) - 1][i] = 1
                             borrow[len(homework) - 1][i].append(
                                 x if x not in now_work[0]["limited"] else x + list_to_string(now_work[0]["limited"][x]))
                             borrow[len(homework) - 1][i].append(
-                                y if y not in now_work[0]["limited"] else y + list_to_string(now_work[0]["limited"][y]))
+                                y if y not in now_work[1]["limited"] else y + list_to_string(now_work[1]["limited"][y]))
                             borrow[len(homework) - 1][i].append(
-                                z if z not in now_work[0]["limited"] else z + list_to_string(now_work[0]["limited"][z]))
+                                z if z not in now_work[2]["limited"] else z + list_to_string(now_work[2]["limited"][z]))
     return is_work
 
 
@@ -133,8 +133,12 @@ if __name__ == "__main__":
         'c2': 800 * 3,
         'c3': 1000 * 3,
         'c4': 1200 * 3,
-        'c5': 2000 * 3.1,
+        'c5': 2000 * 3,
         'd1': 0, 'd2': 0, 'd3': 0, 'd4': 0, 'd5': 0,
     }
     # print(len(boxtable))
-    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
+    can_solve = slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow, 0)
+    if can_solve != -1:
+        slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow, can_solve)
+    else:
+        print("无解")

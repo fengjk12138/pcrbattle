@@ -52,11 +52,12 @@ def get_timeline(filename):
         j = 4
         limit = {}
         while True:
-            if table.cell_type(i, j) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
+            if j >= table.ncols or table.cell_type(i, j) in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
                 break
             li = table.cell(i, j).value
             li = li.strip().split()
             name = get_name(li[0])
+
             if name not in true_name:
                 print(name + "不在这个轴里面")
                 exit(-1)
