@@ -1,21 +1,24 @@
 from pulp import *
 import xlwt
 from chara import list_to_string
-from box import person_num
-import copy
+from box import get_person_num
+from time import time
 
 
-# flag 0:先计算最少刀数 1:最少刀数的情况下最大伤害
 def slove(able_matrix, homework, box, need_to_defeat, borrow):
+    patho = os.path.join(os.getcwd(), 'data', 'cbc.exe')
+    # print(patho)
     problem = LpProblem("Ads_Optimization", LpMinimize)
     var_matrix = []
     for i in range(len(able_matrix)):
         tmp_list = []
-        for j in range(person_num):
-            tmp_list.append(
-                LpVariable("%d_%d_var" % (i, j), lowBound=0, upBound=able_matrix[i][j], cat='Binary', e=None))
+        for j in range(get_person_num()):
+            ud_tmp = LpVariable("%d_%d_var" % (i, j), lowBound=0, upBound=able_matrix[i][j], cat=const.LpBinary, e=None)
+            tmp_list.append(ud_tmp)
+            if able_matrix[i][j] == 0:
+                problem += ud_tmp == 0
         var_matrix.append(tmp_list)
-    for j in range(person_num):
+    for j in range(get_person_num()):
         tmp_dinner = var_matrix[0][j]
         for i in range(1, len(able_matrix)):
             tmp_dinner = tmp_dinner + var_matrix[i][j]
@@ -29,7 +32,7 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
 
     obj = None
     for i in range(len(able_matrix)):
-        for j in range(person_num):
+        for j in range(get_person_num()):
             if able_matrix[i][j]:
                 for y in homework[i]:
                     if y['boss'][0] != 'd':
@@ -46,11 +49,9 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         if plan_to_defeat[x] is not None and need_to_defeat[x] != 0:
             problem += plan_to_defeat[x] >= need_to_defeat[x]
 
-
-
     # obj2 = None
     # for i in range(len(able_matrix)):
-    #     for j in range(person_num):
+    #     for j in range(get_person_num()):
     #         if able_matrix[i][j] != 0:
     #             if obj2 is None:
     #                 obj2 = var_matrix[i][j] * (
@@ -60,28 +61,17 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
     #                         homework[i][0]["soccer"] + homework[i][1]["soccer"] + homework[i][2]["soccer"]) + obj2
     # problem += obj2
 
-    # obj = None
-    # for i in range(len(able_matrix)):
-    #     for j in range(person_num):
-    #         if obj is None:
-    #             obj = var_matrix[i][j]
-    #         else:
-    #             obj = var_matrix[i][j] + obj
     problem += obj
 
-    # problem += obj if flag == 0 else (obj == flag)
 
-    can_solve = problem.solve()
-    # print(obj.varValue)
-    # if flag == 0:
-    #     if can_solve != 1:
-    #         return -1
-    #     else:
-    #         return int(obj.varValue)
+    solver = COIN_CMD(path=patho,
+                      msg=False)
+    can_solve = problem.solve(solver)
+
     if can_solve == 1:
         tot = 0
         for i in range(len(able_matrix)):
-            for j in range(person_num):
+            for j in range(get_person_num()):
                 tot += int(var_matrix[i][j].varValue)
         print("出刀人数：", tot)
         # print("完整刀伤害人数：", int(value(problem.objective)))
@@ -96,7 +86,8 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         for key in box:
             name_list.append(key)
         output = 0
-        for i in range(person_num):
+        for i in range(get_person_num()):
+
             worksheet.write(i * 3, 0, label=name_list[i])
             worksheet.write(i * 3, 1, label='待定')
             worksheet.write(i * 3 + 1, 1, label='待定')
@@ -110,8 +101,11 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
                             worksheet.write(i * 3 + u, 2, label=homework[j][u]["boss"])
                             worksheet.write(i * 3 + u, 3, label=str(homework[j][u]["soccer"]))
                             worksheet.write(i * 3 + u, 4, label="借 " + borrow[j][i][u])
+
                             need_to_defeat[homework[j][u]["boss"]] -= homework[j][u]["soccer"]
         # 保存
         workbook.save('排刀表.xls')
         print("出刀数: ", output)
+    else:
+        print("无解，请更新box，轴，或者调整目标周目")
     return can_solve

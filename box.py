@@ -1,7 +1,6 @@
 # coding=utf-8
 import xlrd
 import chara
-import os
 
 person_num = 30
 
@@ -11,9 +10,14 @@ def get_name(name):
     confi = 100
     if id_ == chara.UNKNOWN:
         id_, guess_name, confi = chara.guess_id(name)
-    assert confi >= 60  # 人物名字不正确
-
+    if (confi < 60):  # 人物名字不正确
+        raise AssertionError("不认识", name)
     return chara.id2name(id_)
+
+
+def get_person_num():
+    global person_num
+    return person_num
 
 
 # 打开文件

@@ -17,7 +17,7 @@ def get_timeline(filename):
         boss = table.cell(i, 0).value
         if len(boss) != 2 or boss[0] not in boss_status or boss[1] not in boss_name:
             print(boss + "不是能识别的boss")
-            exit(0)
+            raise AssertionError(boss + "不是能识别的boss")
 
         # 识别阵容
         name = table.cell(i, 1).value
@@ -28,13 +28,13 @@ def get_timeline(filename):
         for j in range(len(true_name) - 1):
             if true_name[j] == true_name[j + 1]:
                 print(name + "阵容有两个相同的人物")
-                exit(0)
+                raise AssertionError(name + "阵容有两个相同的人物")
 
         # 识别伤害
         hurt = table.cell(i, 2).value
         if hurt[-1] != 'w' or not hurt[0:-1].isdigit():
             print(hurt + "不是合理伤害")
-            exit(-1)
+            raise AssertionError(hurt + "不是合理伤害")
 
         # 识别借人
         borrow_name = None
@@ -60,10 +60,10 @@ def get_timeline(filename):
 
             if name not in true_name:
                 print(name + "不在这个轴里面")
-                exit(-1)
+                raise AssertionError(name + "不在这个轴里面")
             if name in limit:
                 print(name + "限定了两次")
-                exit(-1)
+                raise AssertionError(name + "限定了两次")
             limit[name] = li[1:]
             j += 1
         tmp = {

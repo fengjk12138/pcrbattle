@@ -1,12 +1,9 @@
-import importlib
-from io import BytesIO
-import unicodedata
-import pygtrie
-import requests
-from fuzzywuzzy import fuzz, process
-from PIL import Image
-import zhconv
-
+from importlib import reload
+from unicodedata import normalize
+from pygtrie import CharTrie
+from fuzzywuzzy import process
+from zhconv import convert
+import json
 import _pcr_data
 
 UNKNOWN = 1000
@@ -23,20 +20,22 @@ def normalize_str(string) -> str:
     """
     规范化unicode字符串 并 转为小写 并 转为简体
     """
-    string = unicodedata.normalize('NFKC', string)
+    # with open('./zhcdict.json', 'r', encoding='utf-8') as pf:
+    #     dist_json = json.load(pf)
+    string = normalize('NFKC', string)
     string = string.lower()
-    string = zhconv.convert(string, 'zh-hans')
+    # string = convert(string, 'zh-hans', dist_json)
     return string
 
 
 class Roster:
 
     def __init__(self):
-        self._roster = pygtrie.CharTrie()
+        self._roster = CharTrie()
         self.update()
 
     def update(self):
-        importlib.reload(_pcr_data)
+        reload(_pcr_data)
         self._roster.clear()
         for idx, names in _pcr_data.CHARA_NAME.items():
             for n in names:

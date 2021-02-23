@@ -1,20 +1,24 @@
-import json
 import copy
-import os
-import box
 from timeline import get_timeline
 from box import get_box
 from liner_pro import slove
 from chara import list_to_string
-from box import person_num
+from box import get_person_num
+import time
+import traceback
+import json
 
 boss_volume = [600, 800, 1000, 1200, 2000]
-
-homework = []
-able_matrix = []
-boxtable = get_box("box表.xlsx")
-timeline = get_timeline("轴表.xlsx")
-borrow = []
+try:
+    homework = []
+    able_matrix = []
+    boxtable = get_box("box表.xlsx")
+    timeline = get_timeline("轴表.xlsx")
+    borrow = []
+except:
+    traceback.print_exc()
+    c = input("出现错误，可能是你的错误或者软件错误，输入回车结束")
+    exit(0)
 
 
 def check_char(now_work):
@@ -23,7 +27,6 @@ def check_char(now_work):
     global homework
     global boxtable
     global borrow
-    global person_num
     is_work = False
 
     for x in now_work[0]["borrow"]:
@@ -58,8 +61,8 @@ def check_char(now_work):
                 if not is_work:
                     homework.append(copy.deepcopy(now_work))
                     is_work = True
-                    able_matrix.append([0 for _ in range(person_num)])
-                    borrow.append([[] for _ in range(person_num)])
+                    able_matrix.append([0 for _ in range(get_person_num())])
+                    borrow.append([[] for _ in range(get_person_num())])
 
                 for i, name in enumerate(boxtable):
                     if able_matrix[len(homework) - 1][i] == 0:
@@ -79,6 +82,7 @@ def check_char(now_work):
                                 y if y not in now_work[1]["limited"] else y + list_to_string(now_work[1]["limited"][y]))
                             borrow[len(homework) - 1][i].append(
                                 z if z not in now_work[2]["limited"] else z + list_to_string(now_work[2]["limited"][z]))
+
     return is_work
 
 
@@ -117,26 +121,19 @@ def gen_next_defeat(need_to_defeat):
 
 
 if __name__ == "__main__":
-    gen_homework(timeline)
-    print(len(homework))
-    need_to_defeat = {
-        'a1': 0,
-        'a2': 0,
-        'a3': 0,
-        'a4': 0,
-        'a5': 0,
-        'b1': 0,
-        'b2': 0,
-        'b3': 0,
-        'b4': 0,
-        'b5': 0,
-        'c1': 600 * 3,
-        'c2': 800 * 3,
-        'c3': 1000 * 3,
-        'c4': 1200 * 3,
-        'c5': 2000 * 3,
-        'd1': 0, 'd2': 0, 'd3': 0, 'd4': 0, 'd5': 0,
-    }
-    # print(len(boxtable))
-    slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
-
+    # a = "2021-02-18 10:00:00"
+    # begintime = time.mktime(time.strptime(a, "%Y-%m-%d %H:%M:%S"))
+    # if time.time() - begintime > 60 * 60 * 72:
+    #     print("软件过期")
+    #     exit(0)
+    try:
+        gen_homework(timeline)
+        print("当前轴所能组合的分刀数量：", len(homework))
+        with open("./进度.txt", "r") as pf:
+            need_to_defeat = json.load(pf)
+        print("请耐心等待10~20min，如果超过20min，一般为无解，请调整轴，box，或者进度，求解时间跟分刀可能数正相关")
+        slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
+        c = input("输入回车结束")
+    except:
+        traceback.print_exc()
+        c = input("出现错误，可能是你的错误或者软件错误，输入回车结束")
