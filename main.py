@@ -131,7 +131,6 @@ if __name__ == "__main__":
         print("当前轴所能组合的分刀数量：", len(homework))
         with open("./进度.txt", "r") as pf:
             need_to_defeat = json.load(pf)
-        print("请耐心等待10~20min，如果超过20min，一般为无解，请调整轴，box，或者进度，求解时间跟分刀可能数正相关")
         slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
         c = input("输入回车结束")
     except:
