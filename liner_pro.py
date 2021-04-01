@@ -4,10 +4,15 @@ from chara import list_to_string
 from box import get_person_num
 from time import time
 
+boss_name = ['1', '2', '3', '4', '5']
+boss_status = ['a', 'b', 'c']
+
 
 def slove(able_matrix, homework, box, need_to_defeat, borrow):
+    if need_to_defeat['mode'] not in [1, 2, 3]:
+        AssertionError("mode是应该1,2,3这些数字")
+
     patho = os.path.join(os.getcwd(), 'data', 'cbc.exe')
-    # print(patho)
     problem = LpProblem("Ads_Optimization", LpMinimize)
     var_matrix = []
     begin_time = time()
@@ -28,25 +33,29 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
 
     person_num = get_person_num()
     for x in need_to_defeat:
-        if need_to_defeat[x] != 0:
+        if need_to_defeat[x] != 0 and x[0] in boss_status and x[1] in boss_name:
             problem += lpSum([
                 homework[i][y]['soccer'] * var_matrix[i][j]
                 for i in range(len(able_matrix))
                 for j in range(person_num)
-                for y in range(3)
+                for y in range(len(homework[i]))
                 if homework[i][y]['boss'] == x
             ]) >= need_to_defeat[x]
+    if need_to_defeat['mode'] == 1:
+        problem += lpSum([
+            len(homework[i]) * var_matrix[i][j]
+            for i in range(len(able_matrix))
+            for j in range(person_num)
+        ])
+    elif need_to_defeat['mode'] == 2:
+        problem += lpSum([
+            var_matrix[i][j]
+            for i in range(len(able_matrix))
+            for j in range(person_num)
+        ])
 
-    problem += lpSum([
-        var_matrix[i][j]
-        for i in range(len(able_matrix))
-        for j in range(person_num)
-        for y in range(3)
-        if homework[i][y]['boss'][0] != 'd'
-    ])
-    print("录入完成\n请耐心等待几分钟，如果超过10min，一般为无解\n如果无解，请调整轴，box，或者进度，求解时间跟分刀可能数正相关\n或者删掉d轴进行近似求解")
-    solver = COIN_CMD(path=patho,
-                      msg=False)
+    print("录入完成\n请耐心等待几分钟，如果超过10min，一般为无解\n如果无解，请调整轴，box，或者进度，求解时间跟分刀可能数正相关\n")
+    solver = COIN_CMD(path=patho, msg=False)
     can_solve = problem.solve(solver)
 
     if can_solve == 1:
@@ -75,7 +84,7 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         for i in range(len(homework)):
             homework_num[i] = 0
         for x in need_to_defeat:
-            if need_to_defeat[x] != 0:
+            if need_to_defeat[x] != 0 and x[0] in boss_status and x[1] in boss_name:
                 boss_defeat[x] = []
         for i in range(get_person_num()):
 
@@ -87,7 +96,7 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
             for j in range(len(able_matrix)):
                 if int(var_matrix[j][i].varValue) == 1:
                     homework_num[j] += 1
-                    for u in range(3):
+                    for u in range(len(homework[j])):
                         if need_to_defeat[homework[j][u]["boss"]] > 0:
                             boss_defeat[homework[j][u]["boss"]].append([name_list[i], homework[j][u]])
                             worksheet.write(i * 3 + u, 1, label=list_to_string(homework[j][u]["chara"]))
@@ -108,14 +117,13 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         line_no = 0
         for x in homework_num:
             if homework_num[x] != 0:
+                out_str = f"{homework_num[x]}人打 "
+                for t in range(len(homework[x])):
+                    out_str += homework[x][t]['boss'] + " "
+                    worksheet.write(line_no + t, 10,
+                                    label=f"{list_to_string(homework[x][t]['chara'])} {homework[x][t]['soccer']}w")
                 worksheet.write(line_no, 9,
-                                label=f"{homework_num[x]}人打 {homework[x][0]['boss']}-{homework[x][1]['boss']}-{homework[x][2]['boss']}")
-                worksheet.write(line_no, 10,
-                                label=f"{list_to_string(homework[x][0]['chara'])} {homework[x][0]['soccer']}w")
-                worksheet.write(line_no + 1, 10,
-                                label=f"{list_to_string(homework[x][1]['chara'])} {homework[x][1]['soccer']}w")
-                worksheet.write(line_no + 2, 10,
-                                label=f"{list_to_string(homework[x][2]['chara'])} {homework[x][2]['soccer']}w")
+                                label=out_str)
                 line_no += 4
         # 保存
         workbook.save('排刀表.xls')

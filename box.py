@@ -24,23 +24,39 @@ def get_person_num():
 def get_box(filename):
     global person_num
     out = {}
+
     data = xlrd.open_workbook(filename)
     # 通过文件名获得工作表,获取工作表1
     table = data.sheet_by_name(data.sheet_names()[0])
     name = []
-    for x in range(3, table.ncols):
+    for x in range(3, table.ncols - 3):
         name.append(get_name(table.cell(0, x).value))
     person_num = table.nrows - 1
+
+    dao = [3] * person_num
+
     for i in range(1, table.nrows):
         out[table.cell(i, 2).value] = {}
-        for j in range(3, table.ncols):
+        for j in range(3, table.ncols - 3):
             if table.cell_type(i, j) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
                 myval = table.cell(i, j).value
                 if isinstance(myval, float):
                     myval = int(myval)
                 myval = str(myval)
-                out[table.cell(i, 2).value][name[j - 3]] = myval
-    return out
+                out[table.cell(i, 2).value][name[j - 3]] = myval.strip()
+        for j in range(table.ncols - 3, table.ncols):
+            if table.cell_type(i, j) not in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
+                myval = table.cell(i, j).value
+                if isinstance(myval, float):
+                    myval = int(myval)
+                myval = str(myval).strip().split()
+                for tmp in myval:
+                    truename = get_name(tmp)
+                    if truename in out[table.cell(i, 2).value]:
+                        out[table.cell(i, 2).value].pop(truename)
+                dao[i - 1] -= 1
+    return out, dao
+
 
 # def executable(command):
 #     if os.path.isabs(command):
@@ -53,7 +69,7 @@ def get_box(filename):
 #     return False
 #     executable = staticmethod(executable)
 #
-# if __name__ == '__main__':
-#     # x = get_box("box表.xlsx")
-#     # print(x)
-#     print(executable('glpsol.exe'))
+if __name__ == '__main__':
+    x, y = get_box("box表.xlsx")
+    print(y)
+    # print(executable('glpsol.exe'))

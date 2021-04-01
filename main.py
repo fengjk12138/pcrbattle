@@ -12,7 +12,7 @@ boss_volume = [600, 800, 1000, 1200, 2000]
 try:
     homework = []
     able_matrix = []
-    boxtable = get_box("box表.xlsx")
+    boxtable, dao = get_box("box表.xlsx")
     timeline = get_timeline("轴表.xlsx")
     borrow = []
 except:
@@ -20,76 +20,80 @@ except:
     c = input("出现错误，可能是你的错误或者软件错误，输入回车结束")
     exit(0)
 
+this_work_can_use = 0
+
+
+def check_without_conflict(now_work, now_brrow):
+    # 判断套餐是否冲突，如果不冲突则加入列表
+    global dao
+    tmp = []
+    tot_limit = {}
+    for tot in range(len(now_brrow)):
+        for t in now_work[tot]["chara"]:
+            if t != now_brrow[tot]:
+                tmp.append(t)
+                if t in now_work[tot]["limited"]:
+                    tot_limit[t] = now_work[tot]["limited"][t]
+    tmp.sort()
+    for j in range(len(tmp) - 1):
+        if tmp[j] == tmp[j + 1]:
+            return 0
+
+    if this_work_can_use == 0:
+        homework.append(copy.deepcopy(now_work))
+        able_matrix.append([0] * get_person_num())
+        borrow.append([[]] * get_person_num())
+
+    for i, name in enumerate(boxtable):
+        if able_matrix[-1][i] == 0 and len(now_brrow) <= dao[i]:
+            can_use = True
+            for key in tmp:
+                if key not in boxtable[name]:
+                    can_use = False
+                    break
+                if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
+                    can_use = False
+                    break
+            if can_use:
+                able_matrix[-1][i] = 1
+                for t in range(len(now_brrow)):
+                    borrow[-1][i].append(
+                        now_brrow[t] if now_brrow[t] not in now_work[t]["limited"] else
+                        now_brrow[t] + ' ' + list_to_string(now_work[t]["limited"][now_brrow[t]])
+                    )
+
+    return 1
+
 
 def check_char(now_work):
-    # 判断一个套餐是否可行，并且更新各个人是否能打这个套餐，屎山
+    # 枚举每个套餐的借人情况，判断是否冲突
     global able_matrix
     global homework
     global boxtable
     global borrow
-    is_work = False
+    global this_work_can_use
+    this_work_can_use = 0
 
     for x in now_work[0]["borrow"]:
-        for y in now_work[1]["borrow"]:
-            for z in now_work[2]["borrow"]:
-                tmp = []
-                tot_limit = {}
-                for t in now_work[0]["chara"]:
-                    if t != x:
-                        tmp.append(t)
-                        if t in now_work[0]["limited"]:
-                            tot_limit[t] = now_work[0]["limited"][t]
-                for t in now_work[1]["chara"]:
-                    if t != y:
-                        tmp.append(t)
-                        if t in now_work[1]["limited"]:
-                            tot_limit[t] = now_work[1]["limited"][t]
-                for t in now_work[2]["chara"]:
-                    if t != z:
-                        tmp.append(t)
-                        if t in now_work[2]["limited"]:
-                            tot_limit[t] = now_work[2]["limited"][t]
-                is_next = False
-                tmp.sort()
-                for j in range(len(tmp) - 1):
-                    if tmp[j] == tmp[j + 1]:
-                        is_next = True
-                        break
-                if is_next:
-                    continue
-
-                if not is_work:
-                    homework.append(copy.deepcopy(now_work))
-                    is_work = True
-                    able_matrix.append([0 for _ in range(get_person_num())])
-                    borrow.append([[] for _ in range(get_person_num())])
-
-                for i, name in enumerate(boxtable):
-                    if able_matrix[len(homework) - 1][i] == 0:
-                        can_use = True
-                        for key in tmp:
-                            if key not in boxtable[name]:
-                                can_use = False
-                                break
-                            if key in tot_limit and boxtable[name][key] not in tot_limit[key]:
-                                can_use = False
-                                break
-                        if can_use:
-                            able_matrix[len(homework) - 1][i] = 1
-                            borrow[len(homework) - 1][i].append(
-                                x if x not in now_work[0]["limited"] else x + list_to_string(now_work[0]["limited"][x]))
-                            borrow[len(homework) - 1][i].append(
-                                y if y not in now_work[1]["limited"] else y + list_to_string(now_work[1]["limited"][y]))
-                            borrow[len(homework) - 1][i].append(
-                                z if z not in now_work[2]["limited"] else z + list_to_string(now_work[2]["limited"][z]))
-
-    return is_work
+        if len(now_work) >= 2:
+            for y in now_work[1]["borrow"]:
+                if len(now_work) >= 3:
+                    for z in now_work[2]["borrow"]:
+                        this_work_can_use += check_without_conflict(now_work, [x, y, z])
+                else:
+                    this_work_can_use += check_without_conflict(now_work, [x, y])
+        else:
+            this_work_can_use += check_without_conflict(now_work, [x])
 
 
 def dfs():
     global timeline
     for i in range(len(timeline)):
+        now_work = [timeline[i]]
+        check_char(now_work)
         for j in range(i + 1, len(timeline)):
+            now_work = [timeline[i], timeline[j]]
+            check_char(now_work)
             for k in range(j + 1, len(timeline)):
                 now_work = [timeline[i], timeline[j], timeline[k]]
                 check_char(now_work)
@@ -129,7 +133,7 @@ if __name__ == "__main__":
     try:
         gen_homework(timeline)
         print("当前轴所能组合的分刀数量：", len(homework))
-        with open("./进度.txt", "r") as pf:
+        with open("./进度.txt", "r",encoding='utf-8') as pf:
             need_to_defeat = json.load(pf)
         slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
         c = input("输入回车结束")
