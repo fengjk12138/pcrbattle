@@ -26,6 +26,7 @@ this_work_can_use = 0
 def check_without_conflict(now_work, now_brrow):
     # 判断套餐是否冲突，如果不冲突则加入列表
     global dao
+    global borrow
     tmp = []
     tot_limit = {}
     for tot in range(len(now_brrow)):
@@ -42,7 +43,7 @@ def check_without_conflict(now_work, now_brrow):
     if this_work_can_use == 0:
         homework.append(copy.deepcopy(now_work))
         able_matrix.append([0] * get_person_num())
-        borrow.append([[]] * get_person_num())
+        borrow.append([[] for _ in range(get_person_num())])
 
     for i, name in enumerate(boxtable):
         if able_matrix[-1][i] == 0 and len(now_brrow) <= dao[i]:
@@ -133,10 +134,10 @@ if __name__ == "__main__":
     try:
         gen_homework(timeline)
         print("当前轴所能组合的分刀数量：", len(homework))
-        with open("./进度.txt", "r",encoding='utf-8') as pf:
+        with open("./进度.txt", "r", encoding='utf-8') as pf:
             need_to_defeat = json.load(pf)
         slove(able_matrix, homework, boxtable, copy.deepcopy(need_to_defeat), borrow)
         c = input("输入回车结束")
     except:
         traceback.print_exc()
-        c = input("出现错误，可能是你的错误或者软件错误，输入回车结束")
+        c = input("出现错误，可能是你的输入错误或者软件错误，输入回车结束")

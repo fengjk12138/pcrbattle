@@ -13,7 +13,7 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         AssertionError("mode是应该1,2,3这些数字")
 
     patho = os.path.join(os.getcwd(), 'data', 'cbc.exe')
-    problem = LpProblem("Ads_Optimization", LpMinimize)
+    problem = LpProblem("Ads_Optimization")
     var_matrix = []
     begin_time = time()
     for i in range(len(able_matrix)):
@@ -55,7 +55,7 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         ])
 
     print("录入完成\n请耐心等待几分钟，如果超过10min，一般为无解\n如果无解，请调整轴，box，或者进度，求解时间跟分刀可能数正相关\n")
-    solver = COIN_CMD(path=patho, msg=False)
+    solver = COIN_CMD(path=patho, msg=True)
     can_solve = problem.solve(solver)
 
     if can_solve == 1:
@@ -75,10 +75,28 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
         for key in box:
             name_list.append(key)
         output = 0
+
+        worksheet.col(0).width = 256 * 20
+        # 阵容
         worksheet.col(1).width = 256 * 40
-        worksheet.col(7).width = 256 * 60
-        worksheet.col(9).width = 256 * 15
-        worksheet.col(10).width = 256 * 40
+        worksheet.col(5).width = 256 * 40
+        worksheet.col(9).width = 256 * 40
+
+        # boss
+        worksheet.col(2).width = 256 * 5
+        worksheet.col(6).width = 256 * 5
+        worksheet.col(10).width = 256 * 5
+
+        # 伤害
+        worksheet.col(3).width = 256 * 7
+        worksheet.col(7).width = 256 * 7
+        worksheet.col(11).width = 256 * 7
+
+
+        # 统计信息
+        worksheet.col(15).width = 256 * 20
+        worksheet.col(17).width = 256 * 50
+
         boss_defeat = {}
         homework_num = {}
         for i in range(len(homework)):
@@ -87,11 +105,11 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
             if need_to_defeat[x] != 0 and x[0] in boss_status and x[1] in boss_name:
                 boss_defeat[x] = []
         for i in range(get_person_num()):
-
-            worksheet.write(i * 3, 0, label=name_list[i])
-            worksheet.write(i * 3, 1, label='待定')
-            worksheet.write(i * 3 + 1, 1, label='待定')
-            worksheet.write(i * 3 + 2, 1, label='待定')
+            # print(len(name_list), i)
+            worksheet.write(i, 0, label=name_list[i])
+            worksheet.write(i, 1, label='待定')
+            worksheet.write(i, 5, label='待定')
+            worksheet.write(i, 9, label='待定')
 
             for j in range(len(able_matrix)):
                 if int(var_matrix[j][i].varValue) == 1:
@@ -99,32 +117,43 @@ def slove(able_matrix, homework, box, need_to_defeat, borrow):
                     for u in range(len(homework[j])):
                         if need_to_defeat[homework[j][u]["boss"]] > 0:
                             boss_defeat[homework[j][u]["boss"]].append([name_list[i], homework[j][u]])
-                            worksheet.write(i * 3 + u, 1, label=list_to_string(homework[j][u]["chara"]))
+                            worksheet.write(i, 1 + u * 4, label=list_to_string(homework[j][u]["chara"]))
                             output += 1
-                            worksheet.write(i * 3 + u, 2, label=homework[j][u]["boss"])
-                            worksheet.write(i * 3 + u, 3, label=str(homework[j][u]["soccer"]))
-                            worksheet.write(i * 3 + u, 4, label="借 " + borrow[j][i][u])
+                            worksheet.write(i, 2 + u * 4, label=homework[j][u]["boss"])
+                            worksheet.write(i, 3 + u * 4, label=str(homework[j][u]["soccer"]) + 'w')
+                            worksheet.write(i, 4 + u * 4, label="借 " + borrow[j][i][u])
                             need_to_defeat[homework[j][u]["boss"]] -= homework[j][u]["soccer"]
         line_no = 0
         for i, x in enumerate(boss_defeat):
-            worksheet.write(line_no, 6, label=f"{len(boss_defeat[x])}人打{x}")
+            hurt = 0
+            begin = line_no
             for j, (person_name, work) in enumerate(boss_defeat[x]):
-                worksheet.write(line_no, 7,
-                                label=f"{person_name} 打轴 {list_to_string(work['chara'])} 伤害{work['soccer']}w")
+                worksheet.write(line_no, 16,
+                                label=f"{person_name}")
+                worksheet.write(line_no, 17,
+                                label=f"{list_to_string(work['chara'])} 伤害{work['soccer']}w")
+                hurt += work['soccer']
                 line_no += 1
+            worksheet.write(begin, 15, label=f"{len(boss_defeat[x])}人打{x}共{hurt}w")
             line_no += 1
 
-        line_no = 0
+        line_no = get_person_num() + 3
+
         for x in homework_num:
             if homework_num[x] != 0:
                 out_str = f"{homework_num[x]}人打 "
                 for t in range(len(homework[x])):
                     out_str += homework[x][t]['boss'] + " "
-                    worksheet.write(line_no + t, 10,
-                                    label=f"{list_to_string(homework[x][t]['chara'])} {homework[x][t]['soccer']}w")
-                worksheet.write(line_no, 9,
+                    worksheet.write(line_no, 1 + t * 4,
+                                    label=f"{list_to_string(homework[x][t]['chara'])}")
+                    worksheet.write(line_no, 2 + t * 4,
+                                    label=f"{homework[x][t]['boss']}")
+                    worksheet.write(line_no, 3 + t * 4,
+                                    label=f"{homework[x][t]['soccer']}w")
+
+                worksheet.write(line_no, 0,
                                 label=out_str)
-                line_no += 4
+                line_no += 1
         # 保存
         workbook.save('排刀表.xls')
         print("出刀数: ", output)

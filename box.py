@@ -71,5 +71,6 @@ def get_box(filename):
 #
 if __name__ == '__main__':
     x, y = get_box("box表.xlsx")
+    print(x['Remarkable'])
     print(y)
     # print(executable('glpsol.exe'))
